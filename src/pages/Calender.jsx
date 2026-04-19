@@ -12,6 +12,7 @@ const PORTAL_ORIGIN =
 const Calender = () => {
   const [calendarUrl, setCalendarUrl] = useState("");
   const [sessionLabel, setSessionLabel] = useState("");
+  const [termLabel, setTermLabel] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -24,6 +25,7 @@ const Calender = () => {
           const normalized = url.startsWith("/") ? `${PORTAL_ORIGIN}${url}` : url;
           setCalendarUrl(normalized);
           setSessionLabel(data?.current_session || "");
+          setTermLabel(data?.current_term || "");
         }
       } catch {
         // Keep the built-in static fallback if the portal is unavailable.
@@ -66,9 +68,18 @@ const Calender = () => {
             <p className="mt-4 text-gray-600 text-sm">
               Stay updated with our academic schedules and events.
             </p>
-            {sessionLabel && (
+            {(sessionLabel || termLabel) && (
               <p className="mt-2 text-sm text-gray-500">
-                Current Session: <span className="font-semibold text-[#4a0f3f]">{sessionLabel}</span>
+                Current:{" "}
+                {sessionLabel && (
+                  <span className="font-semibold text-[#4a0f3f]">{sessionLabel}</span>
+                )}
+                {termLabel && (
+                  <>
+                    {" "}
+                    / <span className="font-semibold text-[#4a0f3f]">{termLabel}</span>
+                  </>
+                )}
               </p>
             )}
           </div>
