@@ -6,6 +6,9 @@ const CALENDAR_API =
   import.meta.env.VITE_PORTAL_CALENDAR_API ||
   "https://portal.sfgs.com.ng/?page=academic_calendar_api";
 
+const PORTAL_ORIGIN =
+  import.meta.env.VITE_PORTAL_ORIGIN || "https://portal.sfgs.com.ng";
+
 const Calender = () => {
   const [calendarUrl, setCalendarUrl] = useState("");
   const [sessionLabel, setSessionLabel] = useState("");
@@ -18,7 +21,8 @@ const Calender = () => {
         const data = await portalFetchJson(CALENDAR_API, { method: "GET" });
         const url = data?.calendar?.file_url || "";
         if (!cancelled && url) {
-          setCalendarUrl(url);
+          const normalized = url.startsWith("/") ? `${PORTAL_ORIGIN}${url}` : url;
+          setCalendarUrl(normalized);
           setSessionLabel(data?.current_session || "");
         }
       } catch {
