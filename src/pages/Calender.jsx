@@ -7,7 +7,7 @@ const CALENDAR_API =
   "https://portal.sfgs.com.ng/?page=academic_calendar_api";
 
 const Calender = () => {
-  const [calendarUrl, setCalendarUrl] = useState(ASSETS.academicCalendarPdf);
+  const [calendarUrl, setCalendarUrl] = useState("");
   const [sessionLabel, setSessionLabel] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
@@ -56,37 +56,51 @@ const Calender = () => {
 
         {/* PDF Preview */}
         <div className="mt-8">
-          <div className="w-full overflow-hidden rounded-lg border bg-white shadow-md">
+          <div className="mx-auto w-full max-w-6xl overflow-hidden rounded-lg border bg-white shadow-md text-left">
             <div className="flex flex-col gap-3 border-b bg-gray-50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="text-left text-sm text-gray-700">
-                {isLoading ? "Loading calendar..." : "Preview"}
+                {isLoading
+                  ? "Loading calendar..."
+                  : calendarUrl
+                    ? "Preview"
+                    : "No calendar uploaded yet."}
               </div>
               <div className="flex flex-wrap gap-2">
                 <a
                   href={calendarUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="rounded bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+                  className={`rounded px-3 py-2 text-sm font-semibold text-white ${
+                    calendarUrl ? "bg-blue-600 hover:bg-blue-700" : "bg-gray-400 pointer-events-none"
+                  }`}
                 >
                   Open PDF
                 </a>
                 <a
                   href={calendarUrl}
                   download
-                  className="rounded bg-emerald-600 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
+                  className={`rounded px-3 py-2 text-sm font-semibold text-white ${
+                    calendarUrl ? "bg-emerald-600 hover:bg-emerald-700" : "bg-gray-400 pointer-events-none"
+                  }`}
                 >
                   Download
                 </a>
               </div>
             </div>
 
-            <div className="relative w-full" style={{ height: "80vh" }}>
-              <iframe
-                title="Academic Calendar PDF"
-                src={calendarUrl}
-                className="h-full w-full"
-              />
-            </div>
+            {calendarUrl ? (
+              <div className="relative w-full" style={{ height: "80vh" }}>
+                <iframe
+                  title="Academic Calendar PDF"
+                  src={calendarUrl}
+                  className="h-full w-full"
+                />
+              </div>
+            ) : (
+              <div className="p-6 text-sm text-gray-700">
+                Upload the academic calendar PDF in the portal: Admin → Academics → Academic Calendar.
+              </div>
+            )}
           </div>
         </div>
       </div>
