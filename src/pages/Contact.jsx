@@ -5,6 +5,46 @@ const CONTACT_ENDPOINT =
   import.meta.env.VITE_PORTAL_CONTACT_ENDPOINT ||
   "https://portal.sfgs.com.ng/?page=contact_submit";
 
+const PORTAL_WARMUP_URL =
+  import.meta.env.VITE_PORTAL_WARMUP_URL || "https://portal.sfgs.com.ng/";
+
+let portalWarmupPromise = null;
+function warmUpPortal() {
+  // InfinityFree can block non-browser requests with a JS cookie challenge.
+  // Loading the portal in a hidden iframe lets the challenge run and sets cookies,
+  // so our subsequent `fetch()` can reach the real PHP endpoint.
+  if (portalWarmupPromise) return portalWarmupPromise;
+
+  portalWarmupPromise = new Promise((resolve) => {
+    try {
+      const iframe = document.createElement("iframe");
+      iframe.src = PORTAL_WARMUP_URL;
+      iframe.title = "portal-warmup";
+      iframe.style.width = "1px";
+      iframe.style.height = "1px";
+      iframe.style.position = "absolute";
+      iframe.style.left = "-9999px";
+      iframe.style.top = "0";
+      iframe.setAttribute("aria-hidden", "true");
+
+      const timeout = setTimeout(resolve, 5000);
+      iframe.onload = () => {
+        // Give the portal a moment to complete any redirect after setting cookies.
+        setTimeout(() => {
+          clearTimeout(timeout);
+          resolve();
+        }, 800);
+      };
+
+      document.body.appendChild(iframe);
+    } catch {
+      resolve();
+    }
+  });
+
+  return portalWarmupPromise;
+}
+
 const Contact = () => {
   const [formData, setFormData] = useState({
     name: "",
@@ -25,6 +65,8 @@ const Contact = () => {
     setStatus("Sending...");
 
     try {
+      await warmUpPortal();
+
       // Send to the portal "contact_submit" receiver (InfinityFree hosted)
       const response = await fetch(CONTACT_ENDPOINT, {
         method: 'POST',
@@ -69,7 +111,7 @@ const Contact = () => {
 
       if (!result && response.ok) {
         setStatus(
-          "Portal security check blocked this request. Open https://portal.sfgs.com.ng in a new tab, then try again."
+          "Portal security check blocked this request. Open https://portal.sfgs.com.ng in a new tab, refresh, then try again."
         );
         return;
       }
